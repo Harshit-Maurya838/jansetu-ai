@@ -1,0 +1,7 @@
+# Local development profile (docker compose). Never use these values in production.
+spring:
+  jpa:
+    show-sql: false
+logging:
+  level:
+    in.jansetu: DEBUG

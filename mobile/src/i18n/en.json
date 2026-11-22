@@ -1,0 +1,31 @@
+{
+  "appName": "JanSetu",
+  "login": {
+    "title": "Sign in",
+    "mobile": "Mobile number",
+    "sendOtp": "Send OTP",
+    "otp": "Enter OTP",
+    "verify": "Verify",
+    "usePassword": "Use password instead",
+    "forgotPassword": "Forgot password?"
+  },
+  "home": { "greeting": "Namaste, {{name}}", "offline": "You are offline. Your work is saved on this phone.", "pendingSync": "{{count}} records waiting to sync" },
+  "modules": {
+    "child": "Children",
+    "growth": "Growth & Nutrition",
+    "vaccination": "Vaccination",
+    "attendance": "Attendance",
+    "healthcard": "Health Card (QR)",
+    "meal": "Meal Quality",
+    "elderly": "Elderly Women",
+    "elderlyhealth": "Elderly Health",
+    "sos": "Emergency SOS",
+    "welfare": "Welfare Support",
+    "caregiver": "Visits & Tasks",
+    "insights": "AI Alerts",
+    "notifications": "Notifications",
+    "admin": "Dashboard & Reports",
+    "sync": "Sync Status"
+  },
+  "common": { "save": "Save", "cancel": "Cancel", "comingSoon": "This screen is being designed.", "logout": "Log out" }
+}

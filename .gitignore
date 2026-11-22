@@ -1,0 +1,57 @@
+# ---- Secrets & local env ----
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.jks
+*.keystore
+!mobile/android/app/debug.keystore
+google-services.json
+GoogleService-Info.plist
+firebase-*.json
+service-account*.json
+
+# ---- Beneficiary data: NEVER commit (see ai-service/data/README.md) ----
+ai-service/data/*
+!ai-service/data/README.md
+*.csv
+*.xlsx
+*.parquet
+ai-service/app/models/*.joblib
+ai-service/app/models/*.pkl
+
+# ---- Java / Maven ----
+backend/target/
+*.class
+*.log
+hs_err_pid*
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# ---- Node / React Native (more in mobile/.gitignore) ----
+node_modules/
+npm-debug.log*
+yarn-error.log
+.expo/
+mobile/android/app/build/
+mobile/android/build/
+mobile/ios/Pods/
+*.jsbundle
+coverage/
+
+# ---- IDE / OS ----
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

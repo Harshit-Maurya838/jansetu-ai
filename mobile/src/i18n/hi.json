@@ -1,0 +1,31 @@
+{
+  "appName": "जनसेतु",
+  "login": {
+    "title": "साइन इन करें",
+    "mobile": "मोबाइल नंबर",
+    "sendOtp": "OTP भेजें",
+    "otp": "OTP डालें",
+    "verify": "सत्यापित करें",
+    "usePassword": "पासवर्ड से लॉगिन करें",
+    "forgotPassword": "पासवर्ड भूल गए?"
+  },
+  "home": { "greeting": "नमस्ते, {{name}}", "offline": "आप ऑफ़लाइन हैं। आपका काम इस फ़ोन में सुरक्षित है।", "pendingSync": "{{count}} रिकॉर्ड सिंक होने बाकी हैं" },
+  "modules": {
+    "child": "बच्चे",
+    "growth": "वृद्धि और पोषण",
+    "vaccination": "टीकाकरण",
+    "attendance": "उपस्थिति",
+    "healthcard": "हेल्थ कार्ड (QR)",
+    "meal": "भोजन गुणवत्ता",
+    "elderly": "बुज़ुर्ग महिलाएँ",
+    "elderlyhealth": "बुज़ुर्ग स्वास्थ्य",
+    "sos": "आपातकालीन SOS",
+    "welfare": "कल्याण सहायता",
+    "caregiver": "विज़िट और कार्य",
+    "insights": "AI अलर्ट",
+    "notifications": "सूचनाएँ",
+    "admin": "डैशबोर्ड और रिपोर्ट",
+    "sync": "सिंक स्थिति"
+  },
+  "common": { "save": "सहेजें", "cancel": "रद्द करें", "comingSoon": "यह स्क्रीन अभी डिज़ाइन हो रही है।", "logout": "लॉग आउट" }
+}
