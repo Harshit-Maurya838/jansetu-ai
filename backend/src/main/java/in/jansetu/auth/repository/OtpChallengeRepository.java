@@ -14,7 +14,7 @@ public interface OtpChallengeRepository extends JpaRepository<OtpChallenge, UUID
     /** Only the newest challenge for a target+purpose is ever valid. */
     Optional<OtpChallenge> findFirstByTargetAndPurposeOrderByCreatedAtDesc(String target, OtpPurpose purpose);
 
-    boolean existsByTargetAndCreatedAtAfter(String target, Instant after);
+    boolean existsByTargetAndPurposeAndCreatedAtAfter(String target, OtpPurpose purpose, Instant after);
 
     long countByTargetAndCreatedAtAfter(String target, Instant after);
 

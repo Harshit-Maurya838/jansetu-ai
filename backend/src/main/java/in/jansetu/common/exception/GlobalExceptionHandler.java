@@ -4,12 +4,15 @@ import in.jansetu.common.response.ApiError;
 import in.jansetu.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 
@@ -28,6 +31,16 @@ public class GlobalExceptionHandler {
                 .map(f -> new ApiError.FieldError(f.getField(), f.getDefaultMessage()))
                 .toList();
         return body(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Request validation failed", req, fields);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    ResponseEntity<ApiResponse<Void>> handleUnreadable(Exception e, HttpServletRequest req) {
+        return body(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Malformed request", req, List.of());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ResponseEntity<ApiResponse<Void>> handleConflict(OptimisticLockingFailureException e, HttpServletRequest req) {
+        return body(HttpStatus.CONFLICT, "VERSION_CONFLICT", "The record was changed by someone else. Try again", req, List.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

@@ -1,0 +1,10 @@
+# Profile for *IT tests (Testcontainers MySQL is wired in AbstractIT).
+jansetu:
+  jwt:
+    secret: dGVzdC1zZWNyZXQtZm9yLWludGVncmF0aW9uLXRlc3RzLW9ubHktMzJieXRlcw==
+  super-admin:
+    mobile: "9000000000"
+    password: Admin12345
+  rate-limit:                      # high so the suites are not throttled; the limiter has its own unit test
+    auth-per-ip-per-minute: 100000
+    auth-per-target-per-15-min: 100000

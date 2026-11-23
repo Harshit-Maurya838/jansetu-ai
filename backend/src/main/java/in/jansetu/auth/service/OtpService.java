@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/** 6-digit OTPs: hashed at rest, 5 min TTL, 5 verify attempts, 60 s resend cooldown, 5 per target per hour. */
+/** 6-digit OTPs: hashed at rest, 5 min TTL, 5 verify attempts, 60 s resend cooldown per purpose, 5 per target per hour. */
 @Service
 @RequiredArgsConstructor
 @Transactional(noRollbackFor = ApiException.class)  // keep the attempt counter when a wrong code is rejected
@@ -43,7 +43,7 @@ public class OtpService {
      */
     public boolean issue(String target, OtpChannel channel, OtpPurpose purpose, UUID userId) {
         Instant now = clock.instant();
-        if (repository.existsByTargetAndCreatedAtAfter(target, now.minus(COOLDOWN))
+        if (repository.existsByTargetAndPurposeAndCreatedAtAfter(target, purpose, now.minus(COOLDOWN))
                 || repository.countByTargetAndCreatedAtAfter(target, now.minus(Duration.ofHours(1))) >= MAX_PER_HOUR) {
             return false;
         }

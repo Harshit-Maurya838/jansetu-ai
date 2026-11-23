@@ -56,6 +56,10 @@
 
         <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
         <dependency><groupId>org.springframework.security</groupId><artifactId>spring-security-test</artifactId><scope>test</scope></dependency>
+        <!-- *IT tests (maven-failsafe, `mvn verify`) run against MySQL in Docker -->
+        <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-testcontainers</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.testcontainers</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.testcontainers</groupId><artifactId>mysql</artifactId><scope>test</scope></dependency>
     </dependencies>
 
     <build>
@@ -79,6 +83,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration><argLine>-javaagent:${org.mockito:mockito-core:jar}</argLine></configuration>
+            </plugin>
+            <!-- *IT classes: Testcontainers (needs Docker). `mvn test` skips them, `mvn verify` runs them. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration><argLine>-javaagent:${org.mockito:mockito-core:jar}</argLine></configuration>
+                <executions><execution><goals><goal>integration-test</goal><goal>verify</goal></goals></execution></executions>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

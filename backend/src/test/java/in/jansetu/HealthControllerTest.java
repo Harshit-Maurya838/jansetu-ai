@@ -1,7 +1,11 @@
 package in.jansetu;
 
 import in.jansetu.security.JwtService;
+import in.jansetu.config.ClockConfig;
+import in.jansetu.security.JsonErrorWriter;
 import in.jansetu.security.SecurityConfig;
+import in.jansetu.security.ratelimit.AuthRateLimits;
+import in.jansetu.security.ratelimit.InMemoryRateLimiter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(HealthController.class)
-@Import({SecurityConfig.class, JwtService.class})
+@Import({SecurityConfig.class, JwtService.class, JsonErrorWriter.class, AuthRateLimits.class, InMemoryRateLimiter.class, ClockConfig.class})
 @TestPropertySource(properties = "jansetu.jwt.secret=dGVzdC1zZWNyZXQtZm9yLXVuaXQtdGVzdHMtb25seS0zMmJ5dGVz")
 class HealthControllerTest {
 
@@ -31,7 +35,9 @@ class HealthControllerTest {
 
     @Test
     void otherEndpointsNeedToken() throws Exception {
-        mvc.perform(get("/api/v1/children")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/v1/children"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error.code").value("UNAUTHORIZED"));
     }
 
     @Test
