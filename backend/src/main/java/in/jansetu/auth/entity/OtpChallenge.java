@@ -12,6 +12,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /** Table `otp_challenges`. Spec: docs/modules/01-authentication.md#data-model */
 @Getter
@@ -20,8 +21,16 @@ import java.time.Instant;
 @Table(name = "otp_challenges")
 public class OtpChallenge extends BaseEntity {
 
-    @Column(nullable = false, length = 15)
-    private String mobile;
+    @Column(nullable = false, length = 160)
+    private String target;  // E.164 mobile or lower-cased email
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(nullable = false, length = 10)
+    private OtpChannel channel;
+
+    @Column(length = 36)
+    private UUID userId;  // FK -> users.id; null for REGISTER
 
     @Column(nullable = false, length = 100)
     private String otpHash;  // never store the OTP itself

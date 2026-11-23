@@ -21,15 +21,24 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false, length = 36)
     private UUID userId;  // FK -> users.id
 
+    @Column(nullable = false, length = 36)
+    private UUID familyId;  // rotation chain started by one login; reuse revokes the whole family
+
     @Column(nullable = false, length = 64)
     private String tokenHash;  // SHA-256 of the opaque token
 
     @Column(nullable = false, length = 64)
     private String deviceId;
 
+    @Column(length = 100)
+    private String deviceName;
+
     @Column(nullable = false)
     private Instant expiresAt;
 
     @Column
     private Instant revokedAt;
+
+    @Column(length = 36)
+    private UUID replacedBy;  // id of the token issued when this one was rotated
 }

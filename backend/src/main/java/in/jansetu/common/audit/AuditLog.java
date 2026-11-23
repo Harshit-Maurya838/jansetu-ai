@@ -37,6 +37,9 @@ public class AuditLog {
     @Column(length = 64)
     private String deviceId;
 
+    @Column(length = 45)
+    private String ip;
+
     @Column(length = 500)
     private String details;         // never put health values here
 

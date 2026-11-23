@@ -49,8 +49,16 @@ public class User extends BaseEntity {
     @Column(length = 36)
     private UUID ngoId;  // FK -> ngos.id; NGO staff
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(nullable = false, length = 30)
+    private UserStatus status;
+
     @Column(nullable = false)
-    private boolean active;
+    private int failedLoginAttempts;
+
+    @Column
+    private Instant lockedUntil;  // set after 5 failed password logins
 
     @Column
     private Instant lastLoginAt;
