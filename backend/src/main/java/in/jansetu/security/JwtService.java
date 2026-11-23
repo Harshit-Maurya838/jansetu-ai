@@ -34,13 +34,19 @@ public class JwtService {
     public String issueAccessToken(JwtPrincipal p) {
         Instant now = Instant.now();
         var builder = Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(p.userId().toString())
                 .claim("role", p.role().name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(accessTtl)));
         if (p.centreId() != null) builder.claim("centreId", p.centreId().toString());
         if (p.ngoId() != null) builder.claim("ngoId", p.ngoId().toString());
+        if (p.deviceId() != null) builder.claim("did", p.deviceId());
         return builder.signWith(key).compact();
+    }
+
+    public Duration accessTtl() {
+        return accessTtl;
     }
 
     /** Empty if the token is missing, expired, tampered with or malformed. */
@@ -51,7 +57,8 @@ public class JwtService {
                     UUID.fromString(c.getSubject()),
                     Role.valueOf(c.get("role", String.class)),
                     uuidOrNull(c.get("centreId", String.class)),
-                    uuidOrNull(c.get("ngoId", String.class))));
+                    uuidOrNull(c.get("ngoId", String.class)),
+                    c.get("did", String.class)));
         } catch (JwtException | IllegalArgumentException | NullPointerException e) {
             return Optional.empty();
         }
