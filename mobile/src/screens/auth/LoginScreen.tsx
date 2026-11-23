@@ -1,95 +1,86 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../services/api/client';
-import { saveTokens, useAuthStore, type SessionUser } from '../../store/authStore';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BigButton, Field, LinkButton, Message, OfflineNotice, Screen, Tabs, Title } from '../../components/ui';
+import { useSubmit } from '../../hooks/useSubmit';
+import type { AuthStackParamList } from '../../navigation/types';
+import { login, requestLoginOtp } from '../../services/auth/authApi';
+import { identifierError, mobileError, normalizeMobile, toIdentifier } from '../../utils/validation';
 
-interface LoginResult {
-  accessToken: string;
-  refreshToken: string;
-  user: SessionUser;
-}
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
-/** OTP-first login (docs/modules/01-authentication.md#screens). Password login & forgot-password: TODO(team). */
-export default function LoginScreen() {
+/** Password or OTP login. OTP is the default: many workers have no email and forget passwords. */
+export default function LoginScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
-  const setUser = useAuthStore(s => s.setUser);
+  const [tab, setTab] = useState<'otp' | 'password'>('otp');
+  const [identifier, setIdentifier] = useState('');
   const [mobile, setMobile] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const { busy, error, run } = useSubmit();
 
-  const validMobile = /^[6-9]\d{9}$/.test(mobile);
+  const idErr = tab === 'password' ? identifierError(identifier) : mobileError(mobile);
+  const pwErr = tab === 'password' && !password ? 'validation.required' : null;
 
-  async function sendOtp() {
-    setError(null);
-    try {
-      await api('/auth/otp/request', { method: 'POST', body: JSON.stringify({ mobile: `+91${mobile}`, purpose: 'LOGIN' }) });
-      setOtpSent(true);
-    } catch (e) {
-      setError((e as Error).message);
+  const submit = () => {
+    setSubmitted(true);
+    if (idErr || pwErr) return;
+    if (tab === 'password') {
+      run(() => login(toIdentifier(identifier), password));
+    } else {
+      const m = normalizeMobile(mobile);
+      run(() => requestLoginOtp(m)).then(ok => ok && navigation.navigate('OtpVerify', { mode: 'login', mobile: m }));
     }
-  }
-
-  async function verify() {
-    setError(null);
-    try {
-      const r = await api<LoginResult>('/auth/otp/verify', {
-        method: 'POST',
-        body: JSON.stringify({ mobile: `+91${mobile}`, otp, deviceId: 'TODO(team)-device-id' }),
-      });
-      await saveTokens(r.accessToken, r.refreshToken);
-      setUser(r.user);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{t('appName')}</Text>
-      <Text style={styles.label}>{t('login.mobile')}</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="phone-pad"
-        maxLength={10}
-        value={mobile}
-        onChangeText={setMobile}
-        accessibilityLabel={t('login.mobile')}
+    <Screen>
+      <Title>{t('login.title')}</Title>
+      <OfflineNotice />
+      {route.params?.notice === 'passwordReset' && <Message tone="success" text={t('reset.done')} />}
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        options={[
+          { key: 'otp', label: t('login.tabOtp') },
+          { key: 'password', label: t('login.tabPassword') },
+        ]}
       />
-      {otpSent && (
+      {tab === 'otp' ? (
+        <Field
+          label={t('login.mobile')}
+          keyboardType="phone-pad"
+          autoComplete="tel"
+          maxLength={14}
+          value={mobile}
+          onChangeText={setMobile}
+          error={submitted && idErr ? t(idErr) : null}
+        />
+      ) : (
         <>
-          <Text style={styles.label}>{t('login.otp')}</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="number-pad"
-            maxLength={6}
-            value={otp}
-            onChangeText={setOtp}
-            accessibilityLabel={t('login.otp')}
+          <Field
+            label={t('login.identifier')}
+            autoCapitalize="none"
+            autoComplete="username"
+            value={identifier}
+            onChangeText={setIdentifier}
+            error={submitted && idErr ? t(idErr) : null}
+          />
+          <Field
+            label={t('login.password')}
+            secureTextEntry
+            autoComplete="password"
+            value={password}
+            onChangeText={setPassword}
+            error={submitted && pwErr ? t(pwErr) : null}
           />
         </>
       )}
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Pressable
-        style={[styles.button, !validMobile && styles.disabled]}
-        disabled={!validMobile}
-        onPress={otpSent ? verify : sendOtp}
-        accessibilityRole="button">
-        <Text style={styles.buttonText}>{otpSent ? t('login.verify') : t('login.sendOtp')}</Text>
-      </Pressable>
-    </View>
+      <Message text={error} />
+      <BigButton title={tab === 'otp' ? t('login.sendOtp') : t('login.submit')} onPress={submit} busy={busy} />
+      {tab === 'password' && <LinkButton title={t('login.forgotPassword')} onPress={() => navigation.navigate('ForgotPassword')} />}
+      <LinkButton title={t('login.signUpParent')} onPress={() => navigation.navigate('SignUp')} />
+      <LinkButton title={t('login.activate')} onPress={() => navigation.navigate('Activate')} />
+    </Screen>
   );
 }
-
-// Large touch targets and text: low-end phones, outdoor use, limited tech literacy.
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: 'center', backgroundColor: '#fff' },
-  title: { fontSize: 32, fontWeight: '700', marginBottom: 32, textAlign: 'center', color: '#0b5d3b' },
-  label: { fontSize: 18, marginBottom: 8, color: '#222' },
-  input: { borderWidth: 1, borderColor: '#888', borderRadius: 8, fontSize: 20, padding: 12, marginBottom: 16 },
-  button: { backgroundColor: '#0b5d3b', borderRadius: 8, minHeight: 56, justifyContent: 'center' },
-  disabled: { opacity: 0.5 },
-  buttonText: { color: '#fff', fontSize: 20, textAlign: 'center', fontWeight: '600' },
-  error: { color: '#b00020', fontSize: 16, marginBottom: 12 },
-});

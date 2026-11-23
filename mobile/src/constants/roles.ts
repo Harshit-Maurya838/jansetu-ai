@@ -1,6 +1,6 @@
 /**
- * Roles and module access, mirroring docs/rbac-matrix.md.
- * The app only HIDES screens a role cannot use; the backend is the real gate (@PreAuthorize + data scoping).
+ * Roles and module keys, mirroring docs/rbac-matrix.md. Which modules a role sees comes from the server
+ * (`permissions` in the login response). The app only HIDES screens; the backend is the real gate.
  */
 export const ROLES = [
   'SUPER_ADMIN',
@@ -49,17 +49,11 @@ export const MODULE_DOC: Record<ModuleKey, string> = {
   sync: '16',
 };
 
-const ALL: ModuleKey[] = Object.keys(MODULE_DOC) as ModuleKey[];
-
-/** Which module tiles each role sees on the home screen (any access level, incl. read-only). */
-export const MODULE_ACCESS: Record<Role, ModuleKey[]> = {
-  SUPER_ADMIN: ALL,
-  ANGANWADI_WORKER: ['child', 'growth', 'vaccination', 'attendance', 'healthcard', 'meal', 'insights', 'notifications', 'sync'],
-  NGO_WORKER: ['elderly', 'elderlyhealth', 'sos', 'welfare', 'caregiver', 'healthcard', 'insights', 'notifications', 'sync'],
-  HEALTH_PROFESSIONAL: ['child', 'growth', 'vaccination', 'healthcard', 'elderly', 'elderlyhealth', 'insights', 'notifications'],
-  PARENT_GUARDIAN: ['child', 'growth', 'vaccination', 'attendance', 'healthcard', 'notifications'],
-  NGO_ADMIN: ['elderly', 'elderlyhealth', 'sos', 'welfare', 'caregiver', 'healthcard', 'insights', 'notifications', 'admin'],
-  GOVT_SUPERVISOR: ['child', 'growth', 'vaccination', 'attendance', 'meal', 'insights', 'notifications', 'admin'],
-};
-
-export const canSee = (role: Role, module: ModuleKey): boolean => MODULE_ACCESS[role].includes(module);
+/**
+ * Home-screen modules from the server's `permissions` (login / GET /users/me), which mirror docs/rbac-matrix.md.
+ * Unknown keys (from a newer server) are dropped; SOS always comes first.
+ */
+export function visibleModules(permissions: readonly string[]): ModuleKey[] {
+  const known = permissions.filter((p): p is ModuleKey => p in MODULE_DOC);
+  return [...new Set(known)].sort((a, b) => (a === 'sos' ? -1 : b === 'sos' ? 1 : 0));
+}

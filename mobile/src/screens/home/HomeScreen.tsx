@@ -1,46 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
+import React from 'react';
+import { FlatList, Pressable, StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { MODULE_ACCESS } from '../../constants/roles';
-import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { clearSession, useAuthStore } from '../../store/authStore';
+import { visibleModules } from '../../constants/roles';
+import { useOnline } from '../../hooks/useOnline';
+import type { AppStackParamList } from '../../navigation/types';
+import { useAuthStore } from '../../store/authStore';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
-/** Role-gated module grid. SOS tile (Module 10) is always first for roles that have it. */
+/** Module grid built from the server's `permissions` for this user. SOS tile (Module 10) is always first. */
 export default function HomeScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const user = useAuthStore(s => s.user)!;
-  const [online, setOnline] = useState(true);
-
-  useEffect(() => NetInfo.addEventListener(s => setOnline(!!s.isConnected)), []);
-
-  const modules = [...MODULE_ACCESS[user.role]].sort((a, b) => (a === 'sos' ? -1 : b === 'sos' ? 1 : 0));
+  const online = useOnline();
+  const modules = visibleModules(user.permissions);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.greeting}>{t('home.greeting', { name: user.fullName })}</Text>
-      {!online && <Text style={styles.offline}>{t('home.offline')}</Text>}
-      {/* TODO(team): show t('home.pendingSync', {count}) from sync_queue */}
-      <FlatList
-        data={modules}
-        numColumns={2}
-        keyExtractor={m => m}
-        renderItem={({ item }) => (
-          <Pressable
-            style={[styles.tile, item === 'sos' && styles.sos]}
-            onPress={() => navigation.navigate('Module', { module: item })}
-            accessibilityRole="button">
-            <Text style={[styles.tileText, item === 'sos' && styles.sosText]}>{t(`modules.${item}`)}</Text>
-          </Pressable>
-        )}
-      />
-      <Pressable onPress={clearSession} accessibilityRole="button">
-        <Text style={styles.logout}>{t('common.logout')}</Text>
-      </Pressable>
-    </View>
+    <FlatList
+      style={styles.container}
+      data={modules}
+      numColumns={2}
+      keyExtractor={m => m}
+      ListHeaderComponent={
+        <>
+          <Text style={styles.greeting}>{t('home.greeting', { name: user.fullName })}</Text>
+          {!online && <Text style={styles.offline}>{t('home.offline')}</Text>}
+          {/* TODO(team): show t('home.pendingSync', {count}) from sync_queue */}
+        </>
+      }
+      renderItem={({ item }) => (
+        <Pressable
+          style={[styles.tile, item === 'sos' && styles.sos]}
+          onPress={() => navigation.navigate('Module', { module: item })}
+          accessibilityRole="button">
+          <Text style={[styles.tileText, item === 'sos' && styles.sosText]}>{t(`modules.${item}`)}</Text>
+        </Pressable>
+      )}
+    />
   );
 }
 
@@ -61,5 +58,4 @@ const styles = StyleSheet.create({
   tileText: { fontSize: 18, textAlign: 'center', color: '#0b5d3b', fontWeight: '600' },
   sos: { backgroundColor: '#c62828' },
   sosText: { color: '#fff' },
-  logout: { textAlign: 'center', fontSize: 16, padding: 16, color: '#555' },
 });

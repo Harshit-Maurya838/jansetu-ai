@@ -1,42 +1,40 @@
-import * as Keychain from 'react-native-keychain';
 import { create } from 'zustand';
 import type { Role } from '../constants/roles';
 
-const TOKEN_SERVICE = 'in.jansetu.tokens';
-
+/** Mirrors in.jansetu.auth.dto.UserDto. */
 export interface SessionUser {
   id: string;
   fullName: string;
+  mobile: string;
+  email?: string | null;
   role: Role;
-  centreId?: string;
-  ngoId?: string;
+  status: 'PENDING_ACTIVATION' | 'ACTIVE' | 'LOCKED' | 'DISABLED';
+  permissions: string[];
   preferredLanguage: 'en' | 'hi';
+  centreId?: string | null;
+  ngoId?: string | null;
 }
+
+/**
+ * loading   – reading Keychain at launch
+ * signedOut – login / signup screens
+ * needsPin  – just logged in, must set the 4-digit app PIN
+ * locked    – session exists (maybe offline), PIN required to open
+ * signedIn  – home
+ */
+export type AuthStatus = 'loading' | 'signedOut' | 'needsPin' | 'locked' | 'signedIn';
 
 interface AuthState {
+  status: AuthStatus;
   user: SessionUser | null;
-  setUser: (u: SessionUser | null) => void;
+  languageChosen: boolean;
+  set: (partial: Partial<Omit<AuthState, 'set'>>) => void;
 }
 
-/** Only non-secret profile data lives in memory/state; tokens live in the Android Keystore via Keychain. */
+/** In-memory UI state only. Tokens, profile and PIN hash live in the Keystore (services/auth/secureStore.ts). */
 export const useAuthStore = create<AuthState>(set => ({
+  status: 'loading',
   user: null,
-  setUser: user => set({ user }),
+  languageChosen: false,
+  set: partial => set(partial),
 }));
-
-export async function saveTokens(accessToken: string, refreshToken: string): Promise<void> {
-  await Keychain.setGenericPassword('jansetu', JSON.stringify({ accessToken, refreshToken }), {
-    service: TOKEN_SERVICE,
-  });
-}
-
-export async function getAccessToken(): Promise<string | null> {
-  const creds = await Keychain.getGenericPassword({ service: TOKEN_SERVICE });
-  return creds ? (JSON.parse(creds.password).accessToken as string) : null;
-}
-
-export async function clearSession(): Promise<void> {
-  await Keychain.resetGenericPassword({ service: TOKEN_SERVICE });
-  useAuthStore.getState().setUser(null);
-  // TODO(team): decide whether logout wipes the local SQLite DB (shared phones) – see docs/modules/01-authentication.md
-}

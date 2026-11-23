@@ -7,9 +7,20 @@
     "otp": "Enter OTP",
     "verify": "Verify",
     "usePassword": "Use password instead",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "tabOtp": "OTP",
+    "tabPassword": "Password",
+    "identifier": "Mobile number or email",
+    "password": "Password",
+    "submit": "Sign in",
+    "signUpParent": "New parent? Create an account",
+    "activate": "Staff: activate your account"
   },
-  "home": { "greeting": "Namaste, {{name}}", "offline": "You are offline. Your work is saved on this phone.", "pendingSync": "{{count}} records waiting to sync" },
+  "home": {
+    "greeting": "Namaste, {{name}}",
+    "offline": "You are offline. Your work is saved on this phone.",
+    "pendingSync": "{{count}} records waiting to sync"
+  },
   "modules": {
     "child": "Children",
     "growth": "Growth & Nutrition",
@@ -27,5 +38,116 @@
     "admin": "Dashboard & Reports",
     "sync": "Sync Status"
   },
-  "common": { "save": "Save", "cancel": "Cancel", "comingSoon": "This screen is being designed.", "logout": "Log out" }
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "comingSoon": "This screen is being designed.",
+    "logout": "Log out"
+  },
+  "signUp": {
+    "title": "Parent sign up",
+    "fullName": "Full name",
+    "staffNote": "Anganwadi and NGO staff do not sign up here. Your supervisor creates your account."
+  },
+  "otp": {
+    "title": "Enter OTP",
+    "sentTo": "We sent a 6-digit code to {{mobile}}",
+    "resendIn": "Resend code in {{seconds}} s",
+    "resend": "Resend code",
+    "resent": "A new code was sent"
+  },
+  "activate": {
+    "title": "Activate account",
+    "intro": "Enter the mobile number your supervisor registered. We will send you a code.",
+    "submit": "Activate"
+  },
+  "forgot": {
+    "title": "Forgot password",
+    "intro": "Enter your mobile number or email. If an account exists, we will send a code."
+  },
+  "reset": {
+    "title": "Set new password",
+    "submit": "Save new password",
+    "done": "Password changed. Please sign in."
+  },
+  "password": {
+    "new": "New password",
+    "confirm": "Confirm password",
+    "current": "Current password",
+    "changeTitle": "Change password",
+    "othersLoggedOut": "Your other devices will be logged out."
+  },
+  "pin": {
+    "setTitle": "Set app PIN",
+    "setIntro": "Choose a 4-digit PIN. You will need it every time you open the app.",
+    "confirmIntro": "Enter the same PIN again",
+    "label": "PIN",
+    "confirmLabel": "Confirm PIN",
+    "next": "Next",
+    "mismatch": "PINs did not match. Try again.",
+    "unlockTitle": "Welcome back, {{name}}",
+    "unlock": "Unlock",
+    "wrong": "Wrong PIN. Attempts left: {{left}}",
+    "forgot": "Forgot PIN? Sign in again (needs internet)"
+  },
+  "profile": {
+    "title": "Profile",
+    "mobile": "Mobile",
+    "role": "Role",
+    "centre": "Anganwadi centre",
+    "ngo": "NGO",
+    "language": "Language",
+    "email": "Email (optional)",
+    "saved": "Saved",
+    "logoutAll": "Log out of all devices"
+  },
+  "sessions": {
+    "title": "Active devices",
+    "empty": "No active devices",
+    "unknownDevice": "Unknown device",
+    "thisDevice": "this phone",
+    "lastActive": "Last active: {{time}}",
+    "revoke": "Log out this device"
+  },
+  "roles": {
+    "SUPER_ADMIN": "Super Admin",
+    "ANGANWADI_WORKER": "Anganwadi Worker",
+    "NGO_WORKER": "NGO Worker",
+    "HEALTH_PROFESSIONAL": "Health Professional",
+    "PARENT_GUARDIAN": "Parent / Guardian",
+    "NGO_ADMIN": "NGO Administrator",
+    "GOVT_SUPERVISOR": "Government Supervisor"
+  },
+  "validation": {
+    "required": "This field is required",
+    "mobile": "Enter a 10-digit mobile number starting with 6, 7, 8 or 9",
+    "identifier": "Enter a valid mobile number or email",
+    "otp": "Enter the 6-digit code",
+    "pin": "Enter 4 digits",
+    "email": "Enter a valid email",
+    "passwordPolicy": "At least 8 characters, with letters and numbers",
+    "passwordTooLong": "Password is too long",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "NETWORK": "No internet connection. Please try again when you are online.",
+    "offlineLogin": "You are offline. Signing in needs internet.",
+    "RATE_LIMITED": "Too many attempts. Please wait a few minutes.",
+    "VALIDATION_FAILED": "Please check the details you entered.",
+    "AUTH_INVALID_CREDENTIALS": "Wrong mobile/email or password.",
+    "AUTH_ACCOUNT_LOCKED": "Too many wrong attempts. Try again in 15 minutes, or sign in with OTP.",
+    "AUTH_ACCOUNT_DISABLED": "This account is disabled. Contact your supervisor.",
+    "AUTH_ACTIVATION_REQUIRED": "Please activate your account first.",
+    "AUTH_OTP_INVALID": "The code is wrong.",
+    "AUTH_OTP_EXPIRED": "The code has expired. Request a new one.",
+    "AUTH_OTP_ATTEMPTS_EXCEEDED": "Too many wrong codes. Request a new one.",
+    "AUTH_PASSWORD_POLICY": "Password needs at least 8 characters, with letters and numbers.",
+    "AUTH_PASSWORD_INCORRECT": "Current password is wrong.",
+    "AUTH_REFRESH_INVALID": "Your session has ended. Please sign in again.",
+    "AUTH_TOKEN_REUSED": "For your safety you were signed out. Please sign in again.",
+    "ALREADY_EXISTS": "This is already in use.",
+    "FORBIDDEN": "You are not allowed to do this.",
+    "NOT_FOUND": "Not found."
+  }
 }

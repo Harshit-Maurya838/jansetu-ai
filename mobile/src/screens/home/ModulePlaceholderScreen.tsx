@@ -3,9 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MODULE_DOC } from '../../constants/roles';
-import type { RootStackParamList } from '../../navigation/RootNavigator';
+import type { AppStackParamList } from '../../navigation/types';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Module'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'Module'>;
 
 /** Stand-in until each module's real screens (src/screens/<module>/) are built in Phase II. */
 export default function ModulePlaceholderScreen({ route }: Props) {

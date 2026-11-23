@@ -1,18 +1,14 @@
-import { MODULE_ACCESS, MODULE_DOC, ROLES, canSee } from '../src/constants/roles';
+import { MODULE_DOC, visibleModules } from '../src/constants/roles';
 
-test('every role has an access list of known modules', () => {
-  for (const role of ROLES) {
-    for (const m of MODULE_ACCESS[role]) expect(MODULE_DOC[m]).toBeDefined();
-  }
+test('keeps only known module keys from the server, without duplicates', () => {
+  expect(visibleModules(['child', 'future-module', 'child', 'growth'])).toEqual(['child', 'growth']);
+  for (const m of visibleModules(Object.keys(MODULE_DOC))) expect(MODULE_DOC[m]).toBeDefined();
 });
 
-test('parents cannot see elderly, admin or meal modules', () => {
-  expect(canSee('PARENT_GUARDIAN', 'elderly')).toBe(false);
-  expect(canSee('PARENT_GUARDIAN', 'admin')).toBe(false);
-  expect(canSee('PARENT_GUARDIAN', 'meal')).toBe(false);
+test('SOS tile is always first', () => {
+  expect(visibleModules(['elderly', 'welfare', 'sos'])[0]).toBe('sos');
 });
 
-test('SOS is visible to NGO field staff', () => {
-  expect(canSee('NGO_WORKER', 'sos')).toBe(true);
-  expect(canSee('NGO_ADMIN', 'sos')).toBe(true);
+test('no permissions means no tiles', () => {
+  expect(visibleModules([])).toEqual([]);
 });
