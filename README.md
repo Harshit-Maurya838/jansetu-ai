@@ -191,7 +191,7 @@ docker compose up --build
 | AI service health | <http://localhost:8000/health> (API docs at <http://localhost:8000/docs>) |
 | MySQL | `localhost:3306`, database `jansetu` |
 
-Flyway creates the schema on first start (`V1__init.sql`) and seeds the UIP vaccine schedule (`V2`).
+Flyway creates the schema on first start (`V1__init.sql`), seeds the UIP vaccine schedule (`V2`) and adds the auth tables (`V3`).
 
 ### 3. Or run each part locally (for development)
 
@@ -202,7 +202,8 @@ docker compose up -d mysql
 cd backend
 set -a && source ../.env && set +a      # exports DB_PASSWORD, JWT_SECRET, ...
 mvn spring-boot:run                     # http://localhost:8080
-mvn verify                              # build + tests
+mvn test                                # unit tests (no Docker needed)
+mvn verify                              # + *IT integration tests (Testcontainers MySQL; Docker must be running)
 ```
 
 **AI service:**
@@ -227,7 +228,41 @@ npm run lint && npm run typecheck && npm test
 
 The app talks to `http://10.0.2.2:8080/api/v1` (the host machine as seen from the Android emulator). Change `API_BASE_URL` in
 [`mobile/src/services/api/client.ts`](mobile/src/services/api/client.ts) for a real phone. **Note:** the login screen calls the OTP endpoints
-specified in [Module 01](docs/modules/01-authentication.md), which are not implemented yet (Phase II).
+described in [Module 01](docs/modules/01-authentication.md).
+
+### How to test auth locally
+
+1. In `.env` set `SUPERADMIN_MOBILE` (10 digits) and `SUPERADMIN_PASSWORD` (8+ chars, letters and digits). On first start, if no
+   SUPER_ADMIN exists, one is created from these. Credentials are never hard-coded; outside the `dev` profile the backend refuses to
+   start without them.
+2. Start the stack (`docker compose up --build`, or `mvn spring-boot:run`). Both use the **`dev` profile**, where OTPs are **printed to
+   the backend console** instead of sent by SMS:
+   ```
+   ... ConsoleOtpSender : [DEV OTP] LOGIN for +919876543210: 482913
+   ```
+   (`docker compose logs -f backend | grep "DEV OTP"`). Outside `dev`, SMS is a stub until a gateway is chosen; email OTPs need `MAIL_*`.
+3. Open Swagger UI (<http://localhost:8080/swagger-ui.html>), call `POST /api/v1/auth/login` with
+   `{"identifier": "<SUPERADMIN_MOBILE>", "password": "<SUPERADMIN_PASSWORD>", "deviceId": "swagger"}`, click **Authorize** and paste the
+   `accessToken`.
+4. Try the flows:
+   - **Parent sign-up:** `POST /auth/register/request-otp` → OTP from the console → `POST /auth/register/verify`.
+   - **Staff:** as SA, `POST /admin/users` (e.g. `NGO_ADMIN` with an `ngoId`, or `ANGANWADI_WORKER` with a `centreId`; insert a row in
+     `ngos` / `anganwadi_centres` first). The new user activates with `POST /auth/activate` and the activation OTP from the console.
+   - **Refresh / reuse:** call `POST /auth/token/refresh` twice with the same old token: the second call returns `AUTH_TOKEN_REUSED`.
+5. In the app, the same console OTPs work for OTP login, sign-up, activation and password reset.
+
+**Running `mvn verify` without a local Maven:** the integration tests start MySQL with Testcontainers, so the build container needs the
+Docker socket:
+
+```bash
+cd backend
+docker run --rm -u $(id -u):$(id -g) --group-add $(stat -c %g /var/run/docker.sock) --network host \
+  -v /var/run/docker.sock:/var/run/docker.sock -e TESTCONTAINERS_HOST_OVERRIDE=localhost \
+  -v "$PWD":/src -w /src -v ~/.m2:/var/maven/.m2 -e MAVEN_CONFIG=/var/maven/.m2 \
+  maven:3.9-eclipse-temurin-17 mvn -B -Duser.home=/var/maven verify
+```
+
+(On SELinux hosts such as Fedora add `--security-opt label=disable`.)
 
 ## Roadmap
 

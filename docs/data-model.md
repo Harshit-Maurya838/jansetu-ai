@@ -28,6 +28,8 @@ Relationships only (columns are in the module docs). Actor columns such as `meas
 ```mermaid
 erDiagram
     anganwadi_centres |o--o{ users : "centre_id"
+    users ||--o{ supervisor_jurisdictions : "user_id"
+    anganwadi_centres ||--o{ supervisor_jurisdictions : "centre_id"
     ngos |o--o{ users : "ngo_id"
     users |o--o{ guardians : "user_id"
     anganwadi_centres ||--o{ children : "centre_id"
@@ -108,8 +110,9 @@ erDiagram
 | `anganwadi_centres` | [`AnganwadiCentre`](../backend/src/main/java/in/jansetu/admin/entity/AnganwadiCentre.java) | [15](modules/15-admin-dashboard-reports.md#data-model) | An Anganwadi centre (AWC). Scope for AWW data. |
 | `ngos` | [`Ngo`](../backend/src/main/java/in/jansetu/admin/entity/Ngo.java) | [15](modules/15-admin-dashboard-reports.md#data-model) | A partner NGO. Scope for NGW/NGA data. |
 | `users` | [`User`](../backend/src/main/java/in/jansetu/auth/entity/User.java) | [01](modules/01-authentication.md#data-model) | Every login account, any of the 7 roles. `centre_id` / `ngo_id` give the data scope. |
-| `refresh_tokens` | [`RefreshToken`](../backend/src/main/java/in/jansetu/auth/entity/RefreshToken.java) | [01](modules/01-authentication.md#data-model) | Hashed, rotating refresh tokens per device. |
-| `otp_challenges` | [`OtpChallenge`](../backend/src/main/java/in/jansetu/auth/entity/OtpChallenge.java) | [01](modules/01-authentication.md#data-model) | Hashed OTPs with expiry and attempt count. |
+| `refresh_tokens` | [`RefreshToken`](../backend/src/main/java/in/jansetu/auth/entity/RefreshToken.java) | [01](modules/01-authentication.md#data-model) | Hashed, rotating refresh tokens per device, grouped in rotation families. |
+| `otp_challenges` | [`OtpChallenge`](../backend/src/main/java/in/jansetu/auth/entity/OtpChallenge.java) | [01](modules/01-authentication.md#data-model) | Hashed OTPs (to a mobile or email) with expiry and attempt count. |
+| `supervisor_jurisdictions` | [`SupervisorJurisdiction`](../backend/src/main/java/in/jansetu/auth/entity/SupervisorJurisdiction.java) | [01](modules/01-authentication.md#data-model) | Centres a Government Supervisor covers (GS data scope). |
 | `notifications` | [`Notification`](../backend/src/main/java/in/jansetu/notification/entity/Notification.java) | [14](modules/14-notifications.md#data-model) | Push/SMS/in-app notifications and their delivery status. |
 | `device_tokens` | [`DeviceToken`](../backend/src/main/java/in/jansetu/notification/entity/DeviceToken.java) | [14](modules/14-notifications.md#data-model) | FCM tokens per user device. |
 | `sync_operations` | [`SyncOperation`](../backend/src/main/java/in/jansetu/sync/entity/SyncOperation.java) | [16](modules/16-offline-sync.md#data-model) | Processed client sync ops (idempotency + conflict audit). |
@@ -155,7 +158,9 @@ erDiagram
 
 | Used in | Values |
 |---|---|
-| `otp_challenges.purpose` | `LOGIN`, `REGISTER`, `RESET_PASSWORD` |
+| `users.status` | `PENDING_ACTIVATION`, `ACTIVE`, `LOCKED`, `DISABLED` |
+| `otp_challenges.purpose` | `LOGIN`, `REGISTER`, `RESET_PASSWORD`, `ACTIVATION` |
+| `otp_challenges.channel` | `SMS`, `EMAIL` |
 | `guardians.relation` | `MOTHER`, `FATHER`, `GRANDPARENT`, `OTHER` |
 | `guardians.consent_method` | `SIGNED_FORM`, `OTP`, `THUMB_IMPRESSION` |
 | `children.sex` | `MALE`, `FEMALE`, `OTHER` |
@@ -195,7 +200,6 @@ Schema changes already identified for a **V3 migration** (each is marked `TODO(t
 
 | Change | Module |
 |---|---|
-| `supervisor_jurisdictions (user_id, centre_id)` | [01](modules/01-authentication.md), [rbac-matrix.md](rbac-matrix.md) |
 | `dob_estimated` flag on `children` | [02](modules/02-child-management.md) |
 | `verified_by`, `verified_at` on `vaccination_records` | [04](modules/04-vaccination-healthcare.md) |
 | `centre_closures (centre_id, date, reason)` | [05](modules/05-attendance.md) |

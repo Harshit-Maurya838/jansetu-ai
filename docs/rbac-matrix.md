@@ -16,8 +16,7 @@ and the scope decides *on whose records*. Both are enforced on the server. The m
 | **NGA** | NGO Administrator | `NGO_ADMIN` | `ROLE_NGO_ADMIN` | Programme coordinator of a partner NGO | Own NGO (`users.ngo_id`) |
 | **GS** | Government Supervisor | `GOVT_SUPERVISOR` | `ROLE_GOVT_SUPERVISOR` | ICDS Lady Supervisor / CDPO | Centres in their jurisdiction |
 
-> **TODO(team):** `users` holds only one `centre_id`, but a supervisor covers many centres. Add a
-> `supervisor_jurisdictions (user_id, centre_id)` table in a V3 migration (see [data-model.md](data-model.md#open-questions)).
+> A supervisor covers many centres, so GS scope comes from `supervisor_jurisdictions (user_id, centre_id)` (V3), set by SUPER_ADMIN.
 >
 > **TODO(team):** decide how an HP gets access. Recommended: (a) children/beneficiaries with an open referral to the HP's
 > facility, and (b) a time-limited (24 h), audited grant created when the HP scans a QR card ([Module 06](modules/06-qr-health-card.md)).
@@ -117,6 +116,6 @@ so a list can never leak another centre's rows. A scope failure returns **404, n
 | `users.ngo_id` | Assigned by SA/NGA | NGW / NGA lists |
 | `elderly_beneficiaries.assigned_worker_id` + `caregiver_assignments` | NGA ([Module 12](modules/12-ngo-worker-caregiver.md)) | NGW access |
 | `guardians.user_id` | Linked when the guardian registers with the same mobile number and the AWW confirms | PG access |
-| `supervisor_jurisdictions` | TODO(team) | GS access |
+| `supervisor_jurisdictions` | Assigned by SA when creating / editing a GS ([Module 01](modules/01-authentication.md)) | GS access |
 
 Every change to a role, scope or assignment is written to `audit_logs` ([privacy-and-security.md](privacy-and-security.md#audit-logging)).

@@ -197,5 +197,6 @@ flowchart TB
 | Accessibility | ≥ 48 dp touch targets, ≥ 16 sp text, icons + text labels, colour never the only signal (e.g. SAM = red **and** the word "Severe") |
 | Low-end devices | Hermes engine, FlatList virtualisation, images compressed before storage, no heavy chart library on startup, APK size target < 40 MB |
 | Observability | Structured JSON logs (no personal data), `/api/v1/health`, error tracking TODO(team) |
-| Audit | `audit_logs` for reads/writes of health data, QR scans, SOS actions, exports |
+| Audit | `audit_logs` for reads/writes of health data, QR scans, SOS actions, exports, and auth events (with IP + device) |
+| Rate limiting | `/auth/**` is limited per IP and per mobile/email by [`InMemoryRateLimiter`](../backend/src/main/java/in/jansetu/security/ratelimit/InMemoryRateLimiter.java) behind the `RateLimiter` interface. **Counters live in memory, per backend instance**: fine for the single-instance pilot, but with 2+ instances each one counts separately (and restarts reset them). Before scaling out, replace it with a shared store (Redis, or Bucket4j with a Redis/JDBC backend) |
 | Time zone | Store UTC, show IST. "Today" for attendance/meals = IST calendar day |
