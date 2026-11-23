@@ -2,8 +2,8 @@ import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestCo
 import { useAuthStore, type SessionUser } from '../../store/authStore';
 import { getDeviceId, loadSession, saveSession, wipeSession } from '../auth/secureStore';
 
-// TODO(team): read from build config (react-native-config or similar). 10.0.2.2 = host machine from the Android emulator.
-export const API_BASE_URL = 'http://10.0.2.2:8080/api/v1';
+// Set EXPO_PUBLIC_API_BASE_URL in mobile/.env (inlined at bundle time). Fallback 10.0.2.2 = host machine from the Android emulator.
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://10.0.2.2:8080/api/v1';
 
 /** Mirrors in.jansetu.common.response.ApiResponse – see docs/api-overview.md */
 export interface ApiResponse<T> {
