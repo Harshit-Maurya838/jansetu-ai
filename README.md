@@ -216,18 +216,38 @@ AI_SERVICE_API_KEY=dev-key uvicorn app.main:app --reload --port 8000
 pytest && ruff check .
 ```
 
-**Mobile app** (Android):
+**Mobile app** (Android). `mobile/` is a bare React Native project with Expo modules. It runs as an Expo **development build**,
+not in Expo Go: op-sqlite (SQLCipher) and react-native-keychain are native modules Expo Go does not contain.
 
 ```bash
 cd mobile
 npm install
-npm start                # Metro bundler
-npm run android          # in a second terminal, with an emulator running or a phone connected
+cp .env.example .env     # then pick USB or Wi-Fi below
+npx expo run:android     # local dev build: compiles, installs on the emulator/phone, starts Metro (needs Android SDK)
+npm start                # later sessions: just Metro (expo start --dev-client); the installed dev build connects to it
 npm run lint && npm run typecheck && npm test
 ```
 
-The app talks to `http://10.0.2.2:8080/api/v1` (the host machine as seen from the Android emulator). Change `API_BASE_URL` in
-[`mobile/src/services/api/client.ts`](mobile/src/services/api/client.ts) for a real phone. **Note:** the login screen calls the OTP endpoints
+Cloud dev build instead of a local one (no Android SDK needed; install the APK it gives you, then `npm start`):
+
+```bash
+npm i -g eas-cli && eas login
+eas build --profile development --platform android
+```
+
+**Pointing the app at the backend.** `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` is inlined at bundle time (restart `npm start`
+after changing it). Without it the app uses `http://10.0.2.2:8080/api/v1`, the host machine as seen from the Android emulator.
+
+- **USB:** `adb reverse tcp:8080 tcp:8080` (and `tcp:8081` for Metro), then `EXPO_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1`.
+  Re-run `adb reverse` after replugging the phone.
+- **Wi-Fi:** phone and laptop on the same network. Find the laptop's LAN IP (`ip -4 addr`), set
+  `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:8080/api/v1`, and open the ports until the next reboot (no `--permanent`):
+  ```bash
+  sudo firewall-cmd --add-port=8080/tcp --add-port=8081/tcp
+  ```
+
+Plain HTTP works only in **debug** builds: the React Native Gradle plugin sets `usesCleartextTraffic` to true for debug and false
+for release, so release stays HTTPS-only. **Note:** the login screen calls the OTP endpoints
 described in [Module 01](docs/modules/01-authentication.md).
 
 ### How to test auth locally
