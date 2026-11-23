@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/password/forgot",
                                 "/api/v1/auth/password/reset",
+                                "/api/v1/auth/register/guardian", // TODO(team): require a verified-OTP ticket in the body
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
                         ).permitAll()
                         // TODO(team): /api/v1/sos/sms-webhook must be public but verified by the SMS gateway's signature.

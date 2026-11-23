@@ -18,6 +18,8 @@ ai-service/data/*
 *.csv
 *.xlsx
 *.parquet
+# public WHO reference tables are allowed
+!ai-service/app/models/who_lms/*.csv
 ai-service/app/models/*.joblib
 ai-service/app/models/*.pkl
 
